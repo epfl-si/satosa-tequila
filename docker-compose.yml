@@ -1,0 +1,28 @@
+# This docker-compose.yml file is intended for development support. It
+# is *not* meant for production.
+
+version: '3'
+name: satosa
+
+services:
+  satosa:
+    image: satosa:8
+    command:
+      - bash
+      - -x
+      - /custom-entrypoint.sh
+    volumes:
+      - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
+      - ./config:/config:ro
+      - ./data:/data:ro
+      - ./proxy_conf.yaml:/etc/satosa/proxy_conf.yaml:ro
+      - ./site-python/epfl:/usr/local/lib/python3.11/site-packages/epfl:ro
+      - ./tls:/tls:ro
+    ports:
+      # We must be visible to browsers at port 443, as these days
+      # Tequila doesn't belive in redirecting, nor POSTing, to any
+      # other port (and while you could deal with the former using the
+      # Redirector browser plug-in, the latter is more tricky.)
+      - "127.0.0.1:443:8443"
+volumes:
+  mariadb: {}

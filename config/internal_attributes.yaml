@@ -1,0 +1,71 @@
+# This describes the primary key that SATOSA should use.
+# (Not sure why, or whether, we need to say that twice)
+user_id_from_attrs: [edupersontargetedid]
+user_id_to_attr: edupersontargetedid
+
+# These are the maps (renames) that SATOSA should perform on
+# personally-identifiable information (PII) features. 💡 You can
+# figure out a few things from the SATOSA logs: in particular, look
+# for the following:
+#
+# - multiline spews that start with `backend received attributes:`, which show
+#   everything that SATOSA received from Tequila
+#
+# - log lines that look like `creating access token for scope=`, where
+#   the part after the equals sign indicates precisely what subset of
+#   the PII was requested by the application. For instance,
+#   `scope="openid"` means to send the primary key only; another
+#   possibility is `scope="openid email"` etc.
+#
+# - log lines with `satosa.attribute_mapping.from_internal`, which detail
+#   the nitty-gritty of the mapping process
+#
+# - log lines that contain `pyop.provider.handle_userinfo_request`,
+#   which indicate the PII subset that was effectively disclosed
+#   (`userinfo=`) vs. the part that was requested
+#   (`requested_claims=`, presumably deducted somehow from the `scope`
+#   above)
+attributes:
+  # The primary key (see above) flows from Tequila's `eduPersonUniqueId`
+  # into the OpenID `sub` attribute:
+  edupersontargetedid:
+    saml: [eduPersonUniqueId]
+    openid: [sub]
+
+  # The `email` (and `email_verified`) fields can be requested by
+  # asserting the `email` OpenID-Connect scope, as seen in
+  # https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
+  email:
+    # The value for `email` flows from Tequila's `email`, or
+    # `emailAddress`, or `mail` fields (in that order of preference)
+    # into the `email` field of OpenID. 💡 The dict key (the `email:`
+    # part) appears to have something to do with the
+    # `requested_claims`: if you change it to e.g. `mail`, then SATOSA
+    # won't disclose the email address in the `userInfo` OIDC call
+    # anymore, despite what the `openid: [email]` part might lead you
+    # to believe.
+    saml: [email, emailAdress, mail]
+    openid: [email]
+
+  # Likewise, the `profile` OIDC scope requests access to the
+  # following fields:
+  given_name:
+    saml: [givenName]
+    openid: [given_name]
+  family_name:
+    saml: [sn]
+    openid: [family_name]
+
+  preferred_username:
+    saml: [uid]
+    openid: [preferred_username]
+
+  epflGroups:
+    saml: [epflGroups]
+    openid: [groups]
+
+  organisation:
+    # Fixed attributes (from
+    # satosa-modules/static_attributes_microservice.yaml) apparently
+    # need a mapping too:
+    openid: [organisation]
