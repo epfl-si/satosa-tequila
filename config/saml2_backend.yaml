@@ -17,7 +17,7 @@ config:
     - {contact_type: technical, email_address: 1234@epfl.ch, given_name: Technical}
     - {contact_type: support, email_address: 1234@epfl.ch, given_name: Support}
     # See the “pysaml2-attribute-maps” ConfigMap object in ../satosa-k8s-objects.yaml for an explanation:
-    attribute_map_dir: /config/attributemaps
+    attribute_map_dir: /etc/satosa/config/attributemaps
     entityid: https://satosa-127-0-0-1.nip.io/tequila
     metadata:
       remote:
