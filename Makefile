@@ -1,5 +1,7 @@
 #!/bin/sh
 
+include .env
+
 KEY_TARGETS := tls/satosa.crt tls/satosa.key
 
 ALL_TARGETS := $(KEY_TARGETS)

@@ -6,7 +6,8 @@ name: satosa
 
 services:
   satosa:
-    image: satosa:8
+    # The SATOSA_IMAGE variable is defined in the .env file:
+    image: ${SATOSA_IMAGE}
     command:
       - bash
       - -x
