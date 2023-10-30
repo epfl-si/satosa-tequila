@@ -5,15 +5,15 @@ COOKIE_STATE_NAME: "SATOSA_STATE"
 cookies_samesite_compat:
   - - SATOSA_STATE
     - SATOSA_STATE_LEGACY
-INTERNAL_ATTRIBUTES: /config/internal_attributes.yaml
+INTERNAL_ATTRIBUTES: /etc/satosa/config/internal_attributes.yaml
 COOKIE_STATE_NAME: satosa_state
 STATE_ENCRYPTION_KEY: !ENV STATE_ENCRYPTION_KEY
 BACKEND_MODULES:
-  - /config/saml2_backend.yaml
+  - /etc/satosa/config/saml2_backend.yaml
 FRONTEND_MODULES:
-  - /config/openid_connect_frontend.yaml
+  - /etc/satosa/config/openid_connect_frontend.yaml
 MICRO_SERVICES:
-  - /config/static_attributes_microservice.yaml
+  - /etc/satosa/config/static_attributes_microservice.yaml
 LOGGING:
   version: 1
   formatters:

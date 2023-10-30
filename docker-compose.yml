@@ -12,11 +12,14 @@ services:
       - bash
       - -x
       - /custom-entrypoint.sh
+    environment:
+      - SATOSA_ENTITY_ID=https://tkgi-satosa.epfl.ch/tequila  # Cheating! But it works 🤷
+      # - SATOSA_BASE_URL=https://tkgi-satosa.epfl.ch/tequila
     volumes:
       - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./config:/config:ro
       - ./data:/data:ro
-      - ./proxy_conf.yaml:/etc/satosa/proxy_conf.yaml:ro
+      - ./proxy_conf.yaml:/proxy_conf.yaml:ro
       - ./site-python/epfl:/usr/local/lib/python3.11/site-packages/epfl:ro
       - ./tls:/tls:ro
     ports:
