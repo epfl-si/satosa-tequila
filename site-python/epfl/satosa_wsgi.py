@@ -1,13 +1,7 @@
 # Custom WSGI entry point for SATOSA
 # Adds CORS support
 
-import logging
-import pprint
-
-from werkzeug.wrappers import Response
 from satosa.wsgi import app as app_orig
-
-logger = logging.getLogger(__name__)
 
 class CORSMiddleware(object):
     """Add suitable CORS (cross-origin resource sharing) headers to all responses."""
