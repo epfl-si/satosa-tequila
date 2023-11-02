@@ -4,7 +4,8 @@
 
 twelve_factorify_config () {
 	cp /proxy_conf.yaml /etc/satosa/
-	cp -a /config /etc/satosa/config
+        mkdir -p /etc/satosa/config || true
+	cp -a /config/* /etc/satosa/config
 
         if test -v SATOSA_ENTITY_ID; then
 		sed -i -e "s|entityid: https://satosa-127-0-0-1.nip.io/tequila|entityid: ${SATOSA_ENTITY_ID}|" /etc/satosa/config/saml2_backend.yaml
