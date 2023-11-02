@@ -14,6 +14,7 @@ FRONTEND_MODULES:
   - /etc/satosa/config/openid_connect_frontend.yaml
 MICRO_SERVICES:
   - /etc/satosa/config/static_attributes_microservice.yaml
+  - /etc/satosa/config/tequila_require_microservice.yaml
 LOGGING:
   version: 1
   formatters:
