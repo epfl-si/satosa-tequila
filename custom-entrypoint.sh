@@ -38,4 +38,4 @@ docker_pprint_metadata () {
 }
 
 twelve_factorify_config
-_main gunicorn --certfile=/tls/satosa.crt --keyfile=/tls/satosa.key -b0.0.0.0:8443 epfl.satosa_wsgi:app
+_main gunicorn --certfile=/tls/satosa.crt ${DEBUG_DISABLE_GUNICORN_TIMEOUTS:+--timeout 0} --keyfile=/tls/satosa.key -b0.0.0.0:8443 epfl.satosa_wsgi:app
