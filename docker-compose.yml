@@ -13,6 +13,7 @@ services:
       - -x
       - /custom-entrypoint.sh
     environment:
+      - DEBUG_DISABLE_GUNICORN_TIMEOUTS=1
       - SATOSA_ENTITY_ID=https://tkgi-satosa.epfl.ch/tequila  # Cheating! But it works 🤷
       # - SATOSA_BASE_URL=https://tkgi-satosa.epfl.ch/tequila
     volumes:
