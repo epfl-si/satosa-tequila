@@ -6,6 +6,18 @@ from satosa.exception import SATOSAAuthenticationError
 
 logger = logging.getLogger(__name__)
 
+class TequilaAuthenticationError(SATOSAAuthenticationError):
+    """Like `SATOSAAuthenticationError`, but without censoring the exception message.
+
+    Instead, pass it all the way to the OIDC-aware application to display.
+    """
+    def __init__(self, state, message, *args, **kwargs):
+        super(TequilaAuthenticationError, self).__init__(state, message, *args, **kwargs)
+        self._message = message
+
+    @property
+    def message(self):
+        return '%s - Error ID %s' % (self._message, self.error_id)
 
 class TequilaRequire(ResponseMicroService):
     """
@@ -44,7 +56,7 @@ class TequilaRequireProcessor(object):
         return callback_orig(self.context, self.data)
 
     def authentication_failed(self, message):
-        raise SATOSAAuthenticationError(self.context.state, message)
+        raise TequilaAuthenticationError(self.context.state, message)
 
     @property
     def oidc_client_name(self):
@@ -143,7 +155,7 @@ class TequilaRequirementSet(object):
                 if subcls.fits(clause_as_data):
                     return subcls(clause_as_data)
             raise TequilaRequirementClauseError(
-                "Unknown Tequila requirement", clause_as_data)
+                "Unparseable Tequila requirement", clause_as_data)
 
     class GroupRequireClause(RequireClause):
         CONFIG_KEY = 'group'
