@@ -3,8 +3,10 @@
 . /usr/local/bin/docker-entrypoint.sh
 
 twelve_factorify_config () {
-	cp /proxy_conf.yaml /etc/satosa/
-        mkdir -p /etc/satosa/config || true
+	if [ -f /proxy_conf.yaml ]; then
+		cp /proxy_conf.yaml /etc/satosa/
+	fi
+	mkdir -p /etc/satosa/config || true
 	cp -a /config/* /etc/satosa/config
 	mkdir -p /etc/satosa/config/attributemaps || true
 	if [ -d "/attributemaps" ]; then
