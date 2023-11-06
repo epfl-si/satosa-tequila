@@ -1,0 +1,16 @@
+{
+  "hello_rails": {
+    "token_endpoint_auth_method": "none",
+    "client_id": "hello_rails",
+    "redirect_uris": [
+      "http://localhost:3000/"
+    ],
+    "response_types": [
+      "code"
+    ],
+    "tequila_requires": [
+      { "group" : "epfl-dojo" },
+      { "group" : "isas-fsd" }
+    ]
+  }
+}
