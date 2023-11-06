@@ -18,8 +18,10 @@ twelve_factorify_config () {
 
 	if test -v SATOSA_BASE_URL; then
 		for twelve_factorable in /etc/satosa/config/* /etc/satosa/config/*/* ; do
-			sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
-				$twelve_factorable;
+			if test -f $twelve_factorable; then
+				sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
+					$twelve_factorable
+			fi
 		done
 	else
 		export SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
