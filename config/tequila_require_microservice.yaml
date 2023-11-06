@@ -1,5 +1,5 @@
 # Microservice configuration file for SATOSA
-module: epfl.micro_services.tequila.TequilaRequire
+module: epfl.micro_services.TequilaRequire
 name: TequilaRequire
 config:
     all_your_base:

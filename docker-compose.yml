@@ -19,6 +19,7 @@ services:
     volumes:
       - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./config:/config:ro
+      - ./config/attributemaps:/attributemaps:ro
       - ./data:/data:ro
       - ./proxy_conf.yaml:/proxy_conf.yaml:ro
       - ./site-python/epfl:/usr/local/lib/python3.11/site-packages/epfl:ro
