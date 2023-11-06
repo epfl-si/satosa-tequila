@@ -17,7 +17,7 @@ twelve_factorify_config () {
 	fi
 
 	if test -v SATOSA_BASE_URL; then
-		for twelve_factorable in /etc/satosa/config/* /etc/satosa/config/*/* ; do
+		for twelve_factorable in /etc/satosa/proxy_conf.yaml /etc/satosa/config/* /etc/satosa/config/*/* ; do
 			if test -f $twelve_factorable; then
 				sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
 					$twelve_factorable
