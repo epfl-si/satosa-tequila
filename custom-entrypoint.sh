@@ -5,7 +5,7 @@
 twelve_factorify_config () {
 	cp /proxy_conf.yaml /etc/satosa/
         mkdir -p /etc/satosa/config || true
-	cp $(find /config -maxdepth 1 -type f) /etc/satosa/config
+	cp $(find /config -follow -maxdepth 1 -type f) /etc/satosa/config
 	mkdir -p /etc/satosa/config/attributemaps || true
 	if [ -d "/attributemaps" ]; then
 		cp /attributemaps/* /etc/satosa/config/attributemaps/
