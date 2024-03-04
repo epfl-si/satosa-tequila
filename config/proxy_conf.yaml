@@ -25,6 +25,9 @@ INTERNAL_ATTRIBUTES:
     lastname:
       openid: [name]
 
+    group:
+      openid: [groups]
+
 STATE_ENCRYPTION_KEY: !ENV STATE_ENCRYPTION_KEY
 BACKEND_MODULES:
   - module: epfl.tequila_backend.TequilaBackend
