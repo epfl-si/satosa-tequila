@@ -1,10 +1,12 @@
+from datetime import datetime
 import functools
 import logging
 import re
 import requests
 import socket
 from satosa.base import STATE_KEY as STATE_KEY_BASE
-from satosa.exception import SATOSAError
+from satosa.exception import SATOSAError, SATOSAAuthenticationError
+from satosa.internal import AuthenticationInformation, InternalData
 
 from satosa.response import Redirect
 from satosa.backends.base import BackendModule
@@ -37,7 +39,10 @@ class TequilaBackend(BackendModule):
         super().__init__(auth_callback_func, internal_attributes, base_url, name)
 
     def register_endpoints(self):
-        pass
+        return [
+            ("/back-from-tequila",
+             self._handle_back_from_tequila)
+        ]
 
     def start_auth(self, context, request_info):
         """
@@ -47,7 +52,39 @@ class TequilaBackend(BackendModule):
         """
         teq = _TequilaProtocol()
         client_name = context.state.state_dict[STATE_KEY_BASE]['requester']
-        return Redirect(teq.createrequest(client_name, "https://FIXME"))
+        back_from_tequila_uri = "%s/%s/back-from-tequila" % (
+            self.base_url,
+            self.name)
+        return Redirect(teq.createrequest(client_name, back_from_tequila_uri,
+                                          # TODO: should be figured out either from the OIDC scope, or from the JSON client table, or both
+                                          request="name,firstname,lastname,email"
+                                          ))
+
+    def _handle_back_from_tequila(self, context, *unused_args):
+        """
+        Handles the browser returning from Tequila upon successful authentication.
+        :type context: satosa.context.Context
+        :rtype: satosa.response.Response
+
+        :param context: SATOSA context
+        :return:
+        """
+        auth_details = _TequilaProtocol().fetchattributes(
+            context.request['key'])
+        logger.debug("Back from Tequila with %s", auth_details)
+
+        auth_info = AuthenticationInformation(
+            "tequila",
+            timestamp=datetime.utcnow().timestamp())
+
+        internal_resp = InternalData(
+            auth_info=auth_info,
+            attributes=_arrayify_values(auth_details),
+            subject_type=None,
+            subject_id="tequila")
+
+        return self.auth_callback_func(context, internal_resp)
+
 
 class _TequilaProtocol(object):
     """Headless implementation of the Tequila protocol.
@@ -98,6 +135,12 @@ class _TequilaProtocol(object):
         # Not "requestauth", as erroneously stated in
         # [Lecommandeur-WritingClients]:
         return self._tequila_uri("auth")
+
+    @functools.cached_property
+    def tequila_fetchattributes_uri(self):
+        # Not /requestauth, as erroneously stated in
+        # [Lecommandeur-WritingClients]:
+        return self._tequila_uri("fetchattributes")
 
     @functools.cached_property
     def tequila_logout_uri(self):
@@ -151,6 +194,22 @@ class _TequilaProtocol(object):
         return "%s?requestkey=%s" % (
             self.tequila_requestauth_uri, parsed_response['key'])
 
+    def fetchattributes(self, key):
+        fetchattributes_args = dict(key=key)
+
+        uri = self.tequila_fetchattributes_uri
+        data = _dict2txt(fetchattributes_args)
+
+        response = requests.post(uri,
+                                 data=data,
+                                 headers={"Content-Type": "text/plain"})
+        if response.status_code == 200:
+            return _txt2dict(response.text)
+        else:
+            raise SATOSAError("Tequila: negative response from fetchattributes (code %d): %s" %
+                              (response.status_code, response.text))
+
+
 def _dict2txt(dict):
     return "".join("%s=%s\n" % item for item in dict.items())
 
@@ -163,3 +222,7 @@ def _txt2dict(tequila_response):
             returned[matched[1]] = matched[2]
 
     return returned
+
+
+def _arrayify_values(dict_):
+    return dict((k, [v]) for k, v in dict_.items())
