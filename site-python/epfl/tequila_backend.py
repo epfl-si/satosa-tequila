@@ -1,4 +1,16 @@
+import functools
+import logging
+import re
+import requests
+import socket
+from satosa.base import STATE_KEY as STATE_KEY_BASE
+from satosa.exception import SATOSAError
+
+from satosa.response import Redirect
 from satosa.backends.base import BackendModule
+
+logger = logging.getLogger(__name__)
+
 
 class TequilaBackend(BackendModule):
     """A SATOSA back-end to authenticate against Tequila."""
@@ -26,3 +38,128 @@ class TequilaBackend(BackendModule):
 
     def register_endpoints(self):
         pass
+
+    def start_auth(self, context, request_info):
+        """
+        See super class method satosa.backends.base#start_auth
+        :type context: satosa.context.Context
+        :type request_info: satosa.internal.InternalData
+        """
+        teq = _TequilaProtocol()
+        client_name = context.state.state_dict[STATE_KEY_BASE]['requester']
+        return Redirect(teq.createrequest(client_name, "https://FIXME"))
+
+class _TequilaProtocol(object):
+    """Headless implementation of the Tequila protocol.
+    Follows the terminology of [Lecommandeur-eunis-2005]; functions
+    are named after the URLs on the Tequila server (see also
+    [Lecommandeur-WritingClients]).
+
+    [Lecommandeur-eunis-2005] Tequila. A distributed Web
+    authentication and access control tool, Claude Lecommandeur,
+    Ecole Polytechnique Fédérale de Lausanne, EUNIS 2005
+
+    [Lecommandeur-WritingClients] Tequila: Writing Clients,
+    https://tequila.epfl.ch/download/2.0/docs/writing-clients.odt
+
+    [mod_tequila-config] Apache Module - Tequila Identity Management,
+    https://tequila.epfl.ch/download/2.0/docs/apache-module-config.pdf
+    """
+
+    @functools.cached_property
+    def tequila_host(self):
+        hostparts = ".".split(socket.gethostname())
+        hostparts[0] = "tequila"
+        if len(hostparts) == 1:
+            # We may be in a container. Take a guess.
+            return "tequila.epfl.ch"
+        else:
+            return ".".join(hostparts)
+
+    @functools.cached_property
+    def tequila_port(self):
+        return 443
+
+    @functools.cached_property
+    def tequila_protocol(self):
+        return "https"
+
+    def _tequila_uri(self, cgi_basename):
+        return "%s://%s:%d/cgi-bin/tequila/%s" % (
+            self.tequila_protocol,
+            self.tequila_host, self.tequila_port, cgi_basename)
+
+    @functools.cached_property
+    def tequila_createrequest_uri(self):
+        return self._tequila_uri("createrequest")
+
+    @functools.cached_property
+    def tequila_requestauth_uri(self):
+        # Not "requestauth", as erroneously stated in
+        # [Lecommandeur-WritingClients]:
+        return self._tequila_uri("auth")
+
+    @functools.cached_property
+    def tequila_logout_uri(self):
+        return self._tequila_uri("logout")
+
+    def createrequest(self, service, redirect_url, require=None, request=None):
+        """
+        Obtain an initial authentication ticket from the Tequila server.
+
+        This is step 1 of § 2, "Local authentication" in [Lecommandeur-eunis-2005].
+        :param service: The app-provided service name (like TequilaService in [mod_tequila-config])
+        :param redirect_url: The location that Tequila should tell the browser to go back to, once authentication succeeds
+        :param require: A filter expression (e.g. "username=~.") (like TequilaAllowIf in [mod_tequila-config])
+        :param request: A list of user identity fields to fetch, e.g. ['name', 'firstname']
+                (like TequilaRequest in [mod_tequila-config])
+
+        :property service: The app-provided service name (like TequilaService in [mod_tequila-config])
+        :property tequila_host: The host name of the Tequila server
+        :property tequila_port: The port number of the Tequila server (HTTP/S is mandatory)
+        """
+        createrequest_args = dict(
+            client="SATOSA TequilaBackend",
+            service=service,
+            urlaccess=redirect_url)
+
+        if request is not None:
+            createrequest_args["request"] = request
+
+        if require is not None:
+            createrequest_args["require"] = require
+
+        uri = self.tequila_createrequest_uri
+        data = _dict2txt(createrequest_args)
+
+        logger.debug("Sending to %s: %s" % (uri, data))
+
+        response = requests.post(uri,
+                                 data=data,
+                                 headers={"Content-Type": "text/plain"})
+
+        if response.status_code == 200:
+            parsed_response = _txt2dict(response.text)
+            redirect_to = self._tequila_redirect_uri(parsed_response)
+            logger.debug("Redirecting to %s", redirect_to)
+            return redirect_to
+        else:
+            raise SATOSAError("Tequila is in a bad mood? Response: %s" %
+                              response.text)
+
+    def _tequila_redirect_uri(self, parsed_response):
+        return "%s?requestkey=%s" % (
+            self.tequila_requestauth_uri, parsed_response['key'])
+
+def _dict2txt(dict):
+    return "".join("%s=%s\n" % item for item in dict.items())
+
+def _txt2dict(tequila_response):
+    returned = {}
+    for line in tequila_response.split("\n"):
+        line = re.sub(r'\r$', '', line)
+        matched = re.match(r'^(.*?)=(.*)$', line)
+        if matched:
+            returned[matched[1]] = matched[2]
+
+    return returned
