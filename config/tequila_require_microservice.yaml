@@ -1,6 +1,0 @@
-# Microservice configuration file for SATOSA
-module: epfl.micro_services.TequilaRequire
-name: TequilaRequire
-config:
-    all_your_base:
-            are_belong: "to us"

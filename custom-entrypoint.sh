@@ -12,18 +12,17 @@ twelve_factorify_config () {
                 rm -rf /etc/satosa/config/attributemaps/__pycache__ || true
 	fi
 
-	if test -v SATOSA_ENTITY_ID; then
-		sed -i -e "s|entityid: https://satosa-127-0-0-1.nip.io/tequila|entityid: ${SATOSA_ENTITY_ID}|" /etc/satosa/config/saml2_backend.yaml
-	fi
-
-	if test -v SATOSA_BASE_URL; then
-		for twelve_factorable in /etc/satosa/proxy_conf.yaml /etc/satosa/config/* /etc/satosa/config/*/* ; do
-			if test -f $twelve_factorable; then
-				sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
-					$twelve_factorable
-			fi
-		done
-	else
+	for twelve_factorable in /etc/satosa/proxy_conf.yaml /etc/satosa/config/* /etc/satosa/config/*/* ; do
+		if ! test -f $twelve_factorable; then continue; fi
+		if test -v SATOSA_ENTITY_ID; then
+			sed -i -e "s|entityid: https://satosa-127-0-0-1.nip.io/tequila|entityid: ${SATOSA_ENTITY_ID}|" $twelve_factorable
+		fi
+		if test -v SATOSA_BASE_URL; then
+			sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
+			    $twelve_factorable
+		fi
+	done
+	if ! test -v SATOSA_BASE_URL; then
 		export SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
 	fi
 }
