@@ -57,7 +57,7 @@ class TequilaBackend(BackendModule):
             self.name)
         return Redirect(teq.createrequest(client_name, back_from_tequila_uri,
                                           # TODO: should be figured out either from the OIDC scope, or from the JSON client table, or both
-                                          request="name,firstname,lastname,email"
+                                          request="name,firstname,lastname,email,group"
                                           ))
 
     def _handle_back_from_tequila(self, context, *unused_args):
@@ -71,6 +71,8 @@ class TequilaBackend(BackendModule):
         """
         auth_details = _TequilaProtocol().fetchattributes(
             context.request['key'])
+        if "group" in auth_details:
+            auth_details["group"] = auth_details["group"].split(",")
         logger.debug("Back from Tequila with %s", auth_details)
 
         auth_info = AuthenticationInformation(
@@ -225,4 +227,4 @@ def _txt2dict(tequila_response):
 
 
 def _arrayify_values(dict_):
-    return dict((k, [v]) for k, v in dict_.items())
+    return dict((k, v if isinstance(v, list) else [v]) for k, v in dict_.items())
