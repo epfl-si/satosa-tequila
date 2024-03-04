@@ -15,7 +15,6 @@ services:
     environment:
       - DEBUG_DISABLE_GUNICORN_TIMEOUTS=1
       - PYTHONPATH=/site-python
-      - SATOSA_ENTITY_ID=https://tkgi-satosa.epfl.ch/tequila  # Cheating! But it works 🤷
     volumes:
       - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./config:/config:ro

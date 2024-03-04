@@ -1,6 +1,6 @@
 # satosa-tequila
 
-OpenID-Connect (OIDC) bridge as-a-service to Tequila (SAML), built on top of [SATOSA](https://github.com/IdentityPython/SATOSA/).
+OpenID-Connect (OIDC) bridge as-a-service to Tequila (using the native Tequila protocol), built on top of [SATOSA](https://github.com/IdentityPython/SATOSA/).
 
 ## Development Rig
 
