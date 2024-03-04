@@ -14,11 +14,8 @@ twelve_factorify_config () {
 
 	for twelve_factorable in /etc/satosa/proxy_conf.yaml /etc/satosa/config/* /etc/satosa/config/*/* ; do
 		if ! test -f $twelve_factorable; then continue; fi
-		if test -v SATOSA_ENTITY_ID; then
-			sed -i -e "s|entityid: https://satosa-127-0-0-1.nip.io/tequila|entityid: ${SATOSA_ENTITY_ID}|" $twelve_factorable
-		fi
 		if test -v SATOSA_BASE_URL; then
-			sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BASE_URL}|" \
+			sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BApSE_URL}|" \
 			    $twelve_factorable
 		fi
 	done
@@ -28,19 +25,11 @@ twelve_factorify_config () {
 }
 
 unset -f docker_pprint_metadata
-# Doctored because the original insists on `frontend.xml` being a correct XML file,
-# which it won't because we don't use SAML as front-end.
+# Shunted out because the original insists on `frontend.xml` being a
+# correct XML file, which it won't because we don't use SAML as
+# front-end.
 docker_pprint_metadata () {
-	# use the SAML2 backend keymat to temporarily sign the generated metadata
-	touch backend.xml frontend.xml
-	satosa-saml-metadata proxy_conf.yaml backend.key backend.crt
-	sed -i 's/ID="id-[^"]*"//' backend.xml
-
-	echo -----BEGIN SAML2 BACKEND METADATA-----
-	xq -x 'del(."ns0:EntityDescriptor"."ns1:Signature")' backend.xml | tee backend.xml.new
-	echo -----END SAML2 BACKEND METADATA-----
-
-	mv backend.xml.new backend.xml
+	:
 }
 
 twelve_factorify_config
