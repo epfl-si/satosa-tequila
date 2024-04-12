@@ -1,0 +1,129 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tequilaoidcmappings.tequila.epfl.ch
+spec:
+  scope: Namespaced
+  group: tequila.epfl.ch
+  names:
+    kind: TequilaOIDCMapping
+    listKind: TequilaOIDCMappingList
+    singular: tequilaoidcmapping
+    plural: tequilaoidcmappings
+  versions:
+  - served: true
+    storage: true
+    name: v1
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: >-
+          A TequilaOIDCMapping contains information that helps the
+          satosa-tequila service to provide OpenID-Connect (OIDC)
+          connectivity for one Web application.
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            type: object
+            properties:
+              oidc:
+                description: >-
+                  Configures the OpenID-Connect (OIDC) side of this mapping.
+                type: object
+                properties:
+                  providerURL:
+                    description: >-
+                      The URL of the OpenID-Connect provider that the
+                      Relying Party (RP) will use (redirect the user's
+                      browser to.); used to identify which SATOSA
+                      instance should honor this TequilaOIDCMapping
+                      (and which should ignore it). As per the
+                      OpenID-Connect specification, said SATOSA
+                      instance should serve details of its
+                      cryptographic identity and API endpoints at the
+                      `${url}/.well-known/openid-configuration` URL.
+                    type: string
+                    pattern: '^[A-Za-z0-9/%_.?:=&*-]+$'
+                  clientID:
+                    description: The OpenID-Connect client name
+                    type: string
+                    pattern: '^[A-Za-z0-9/%_.?:=&*-]+$'
+                  redirectURIs:
+                    description: >-
+                      The list of valid redirect URIs that
+                      the OpenID-Connect Relying Party (RPs) may
+                      provide for this TequilaOIDCMapping.
+                    type: array
+                    items:
+                      type: string
+                      pattern: '^[A-Za-z0-9/%_.?:=&*-]+$'
+                  extraIDTokenClaims:
+                    description: >-
+                      Additional fields that should be disclosed in the
+                      JWT-encoded ID token.
+                    type: array
+                    items:
+                      type: string
+                      pattern: '^[A-Za-z0-9_-]+$'
+              tequila:
+                description: >-
+                  Configures the Tequila side of this mapping.
+                type: object
+                properties:
+                  requires:
+                    description: >-
+                      A list of additional requirements to pass to the
+                      Tequila server. Each member of this array is
+                      equivalent to one `TequilaAllowIf` directive in
+                      mod_auth_tequila's Apache configuration.
+                    type: array
+                    items:
+                      type: object
+                      oneOf:
+                        - properties:
+                          required: ["key", "value"]
+                        - properties:
+                          required: ["or"]
+                      properties:
+                        key:
+                          description: >-
+                            The key of this Tequila requirement, e.g. `group` or `unit`
+                          type: string
+                          pattern: '^[A-Za-z0-9]+$'
+                        value:
+                          description: >-
+                            The value for the `key` that the
+                            authenticating user must have, in order to
+                            meet this Tequila requirement. For
+                            instance, the name of a group (if `key` is
+                            `group`), of a unit (if `key` is `unit`)
+                            etc.
+                          type: string
+                          pattern: '^[A-Za-z0-9 -]+$'
+                        or:
+                          description: >-
+                            A list of `TequilaAllowIf`-style clauses to be ORed together.
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                description: >-
+                                  The key of this Tequila requirement, e.g. `group` or `unit`
+                                type: string
+                                pattern: '^[A-Za-z0-9]+$'
+                              value:
+                                description: >-
+                                  The value for the `key` that the
+                                  authenticating user must have, in order to
+                                  meet this Tequila requirement. For
+                                  instance, the name of a group (if `key` is
+                                  `group`), of a unit (if `key` is `unit`)
+                                  etc.
+                                type: string
+                                pattern: '^[A-Za-z0-9 ]+$'
