@@ -1,0 +1,9 @@
+{{- if eq "true" (include "hasOpenShiftBuilds" .) }}
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: satosa-tequila
+spec:
+  tags:
+  - name: latest
+{{- end }}
