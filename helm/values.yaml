@@ -9,6 +9,9 @@ image:
     from:
       name: satosa
       version: 8
+    git:
+      uri: https://github.com/epfl-si/satosa-tequila
+      ref: feature/k8s   # TODO: change once merged
   repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
