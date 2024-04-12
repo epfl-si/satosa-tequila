@@ -20,5 +20,5 @@ spec:
       to:
         # See: ./built-imagestream.yaml
         kind: ImageStreamTag
-        name: satosa-tequila:latest
+        name: "satosa-tequila:{{ .Chart.AppVersion }}"
 {{- end }}
