@@ -5,6 +5,9 @@
 replicaCount: 1
 
 image:
+  base:
+    name: satosa
+    version: 8
   repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
