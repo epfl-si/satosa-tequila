@@ -60,3 +60,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Whether OpenShift-style “cloud build” is available
+*/}}
+{{- define "hasOpenShiftBuilds" -}}
+{{- if and (.Capabilities.APIVersions.Has "image.openshift.io/v1")
+           (.Capabilities.APIVersions.Has "build.openshift.io/v1") -}}
+true
+{{- else -}}
+false
+{{- end }}
+{{- end }}

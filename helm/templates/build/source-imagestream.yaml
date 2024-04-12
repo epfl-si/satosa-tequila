@@ -1,0 +1,12 @@
+{{- if eq "true" (include "hasOpenShiftBuilds" .) }}
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: {{ .Values.image.base.name }}
+spec:
+  tags:
+  - name: "{{ .Values.image.base.version }}"
+    from:
+      kind: DockerImage
+      name: {{ .Values.image.base.name }}:{{ .Values.image.base.version }}
+{{- end }}
