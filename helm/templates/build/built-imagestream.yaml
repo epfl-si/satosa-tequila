@@ -5,5 +5,5 @@ metadata:
   name: satosa-tequila
 spec:
   tags:
-  - name: latest
+  - name: "{{ .Chart.AppVersion }}"
 {{- end }}
