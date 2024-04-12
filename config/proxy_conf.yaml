@@ -1,5 +1,5 @@
 # Main configuration file for SATOSA
-BASE: https://satosa-127-0-0-1.nip.io
+BASE: !ENV SATOSA_BASE_URL
 COOKIE_STATE_NAME: "SATOSA_STATE"
 
 cookies_samesite_compat:

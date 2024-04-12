@@ -11,17 +11,6 @@ twelve_factorify_config () {
 		cp /attributemaps/* /etc/satosa/config/attributemaps/
                 rm -rf /etc/satosa/config/attributemaps/__pycache__ || true
 	fi
-
-	for twelve_factorable in /etc/satosa/proxy_conf.yaml /etc/satosa/config/* /etc/satosa/config/*/* ; do
-		if ! test -f $twelve_factorable; then continue; fi
-		if test -v SATOSA_BASE_URL; then
-			sed -i -e "s|https://satosa-127-0-0-1.nip.io|${SATOSA_BApSE_URL}|" \
-			    $twelve_factorable
-		fi
-	done
-	if ! test -v SATOSA_BASE_URL; then
-		export SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
-	fi
 }
 
 unset -f docker_pprint_metadata

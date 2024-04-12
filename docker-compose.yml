@@ -15,6 +15,7 @@ services:
     environment:
       - DEBUG_DISABLE_GUNICORN_TIMEOUTS=1
       - PYTHONPATH=/site-python
+      - SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
     volumes:
       - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./config:/config:ro
