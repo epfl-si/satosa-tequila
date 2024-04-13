@@ -44,6 +44,21 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
 
         return {}
 
+    def _handle_authn_request(self, context):
+        """Overloaded to set `context.tequila_require` from the configuration."""
+
+        context.tequila_require = None
+        client_id = context.request.get("client_id")
+        if client_id and client_id in self.provider.clients:
+            requires = self.provider.clients[client_id].get("tequila_requires",
+                                                            [])
+            if requires:
+                require_stanza = "&".join("(%s)" % r for r in requires)
+                logger.info("tequila_require %s" % require_stanza)
+                context.tequila_require = require_stanza
+
+        return super()._handle_authn_request(context)
+
 
 class _CachingDictish(object):
     """Minimalist implementation of a dict, that caches all lookups for a few seconds."""
