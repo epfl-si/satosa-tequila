@@ -1,0 +1,20 @@
+# Stick this into your Kubernetes server for tests, as per the README.md
+apiVersion: tequila.epfl.ch/v1
+kind: TequilaOIDCMapping
+metadata:
+  name: hello-rails
+  namespace: default
+spec:
+  oidc:
+    providerURL: https://satosa-127-0-0-1.nip.io/
+    clientID: hello_rails
+    redirectURIs:
+    - http://localhost:3000/
+    extraIDTokenClaims:
+    - preferred_username
+  tequila:
+    requires:
+      - key: group
+        value: epfl-dojo
+      - key: group
+        value: isas-fsd
