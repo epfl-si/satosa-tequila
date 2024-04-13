@@ -15,7 +15,7 @@ tls/satosa.key:
 	openssl genrsa 2048 > $@
 
 .PHONY: up
-up: all
+up: all k8s-credentials
 	docker compose up --build -d
 
 .PHONY: logs
@@ -29,3 +29,6 @@ down:
 .PHONY: clean
 clean:
 	rm -rf $(ALL_TARGETS)
+
+k8s-credentials:
+	./devsupport/prepare-k8s-credentials "$@"
