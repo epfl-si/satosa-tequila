@@ -12,8 +12,11 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
         """Overloaded to implement continuous reload of the JSON database."""
         super().__init__(auth_req_callback_func, internal_attributes, conf, base_url, name)
 
-        json_path = self.config.get("client_db_path")
-        if json_path:
+        db_type = self.config.get("client_db", {}).get("type")
+        if db_type.lower() == "json":
+            json_path = self.config["client_db"]["path"]
+            logger.info("Will be loading OIDC client database from %s" % json_path)
+
             self.provider.clients = _CachingDictish(_JSONDB(json_path))
 
     def _get_extra_id_token_claims(self, user_id, client_id):
