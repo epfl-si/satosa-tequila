@@ -55,10 +55,16 @@ class TequilaBackend(BackendModule):
         back_from_tequila_uri = "%s/%s/back-from-tequila" % (
             self.base_url,
             self.name)
+
+        if hasattr(context, "tequila_require"):
+            require = context.tequila_require
+        else:
+            require = None
+
         return Redirect(teq.createrequest(client_name, back_from_tequila_uri,
                                           # TODO: should be figured out either from the OIDC scope, or from the JSON client table, or both
-                                          request="name,firstname,lastname,email,group"
-                                          ))
+                                          request="name,firstname,lastname,email,group",
+                                          require=require))
 
     def _handle_back_from_tequila(self, context, *unused_args):
         """
