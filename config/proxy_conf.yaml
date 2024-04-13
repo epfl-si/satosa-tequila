@@ -36,7 +36,7 @@ BACKEND_MODULES:
 
 FRONTEND_MODULES:
   - # OpenID-Connect frontend (app-facing) configuration
-    module: satosa.frontends.openid_connect.OpenIDConnectFrontend
+    module: epfl.oidc_frontend.OpenIDConnectFrontend
     name: OIDC
     config:
       provider:

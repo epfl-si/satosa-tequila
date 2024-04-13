@@ -11,6 +11,9 @@
     "tequila_requires": [
       { "group" : "epfl-dojo" },
       { "group" : "isas-fsd" }
+    ],
+    "extra_id_token_claims": [
+      "preferred_username"
     ]
   }
 }
