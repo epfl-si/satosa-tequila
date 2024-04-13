@@ -11,6 +11,9 @@ services:
     environment:
       - DEBUG_DISABLE_GUNICORN_TIMEOUTS=1
       - SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
+      # Adjust these to your Kubernetes server:
+      - KUBERNETES_SERVICE_HOST=api.mgmt.ocp-test.epfl.ch
+      - KUBERNETES_SERVICE_PORT=6443
     volumes:
       # These mounts make it easier to enbug the whole thing, but you
       # could actually run the container without them:
@@ -21,7 +24,8 @@ services:
       # you're gonna have a bad time (with browser alerts resp. the
       # OIDC client database):
       - ./tls:/tls:ro
-      - ./data:/data:ro
+      # Kubernetes will take care of this one for you:
+      - ./k8s-credentials:/var/run/secrets/kubernetes.io/serviceaccount:ro
       # - "/Users/quatrava/Library/Application Support/JetBrains/IntelliJIdea2023.1/plugins/python/debugger-eggs-output/pydevd-pycharm.egg:/pydevd-pycharm.egg:ro"
     ports:
       # We must be visible to browsers at port 443, as these days
