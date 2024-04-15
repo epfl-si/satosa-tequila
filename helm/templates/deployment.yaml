@@ -4,8 +4,18 @@ metadata:
   name: {{ include "satosa-tequila.fullname" . }}
   labels:
     {{- include "satosa-tequila.labels" . | nindent 4 }}
+  {{- if eq "true" (include "hasOpenShiftBuilds" .) }}
+  annotations:
+    image.openshift.io/triggers: >
+      [
+        {
+          "from": {"kind":"ImageStreamTag","name":"satosa-tequila:0.1.0"},
+          "fieldPath":"spec.template.spec.containers[?(@.name==\"satosa-tequila\")].image"
+        }
+      ]
+  {{- end }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
+  {{- if not (and .Values.autoscaling .Values.autoscaling.enabled) }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
@@ -34,19 +44,29 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- /*
+          This points to the base image, which will have to do for the case of non-cloud-build
+          (i.e. non-OpenShift) environments. On OpenShift, the `image.openshift.io/triggers`
+          above, will take effect as soon as this Deployment is created (no need to wait for
+          another build to succeed); in other words, the value below is all but ignored
+          on OpenShift.
+          */}}
+          image: "{{ .Values.image.build.from.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: SATOSA_BASE_URL
+            value: https://{{ .Values.serve.hostname }}{{ .Values.serve.path | default "" }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /.well-known/openid-configuration
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /.well-known/openid-configuration
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
