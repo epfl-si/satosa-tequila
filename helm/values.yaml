@@ -2,6 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+serve:
+  hostname: satosa-tequila.apps.mgmt.ocp-test.epfl.ch
+  # path: /some/url
+
 replicaCount: 1
 
 image:
@@ -12,7 +16,6 @@ image:
     git:
       uri: https://github.com/epfl-si/satosa-tequila
       ref: feature/k8s   # TODO: change once merged
-  repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
