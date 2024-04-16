@@ -72,3 +72,14 @@ true
 false
 {{- end }}
 {{- end }}
+
+{{/*
+Whether the target cluster uses the Quay bridge operator
+*/}}
+{{- define "hasQuayBridge" -}}
+{{- if (gt 0 (len lookup "quay.redhat.com/v1" "QuayIntegration")) -}}
+true
+{{- else -}}
+false
+{{- end }}
+{{- end }}
