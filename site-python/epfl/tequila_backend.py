@@ -195,8 +195,8 @@ class _TequilaProtocol(object):
             logger.debug("Redirecting to %s", redirect_to)
             return redirect_to
         else:
-            raise SATOSAError("Tequila is in a bad mood? Response: %s" %
-                              response.text)
+            raise SATOSAError("Tequila is in a bad mood? Response code: %d, headers: %s, body: %s" %
+                              (response.status_code, response.headers, response.text))
 
     def _tequila_redirect_uri(self, parsed_response):
         return "%s?requestkey=%s" % (
