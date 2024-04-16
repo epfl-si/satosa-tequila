@@ -1,0 +1,16 @@
+{{/*
+Grant the role defined in ./role.yaml to the ServiceAccount
+that the satosa-tequila pod runs as
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+ name: satosa-tequila
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: full-access-tequila-oidc-mappings
+subjects:
+- kind: ServiceAccount
+  name: {{ include "satosa-tequila.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
