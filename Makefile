@@ -1,5 +1,3 @@
-include .env
-
 KEY_TARGETS := tls/satosa.crt tls/satosa.key
 
 ALL_TARGETS := $(KEY_TARGETS)
@@ -18,7 +16,7 @@ tls/satosa.key:
 
 .PHONY: up
 up: all
-	docker compose up -d
+	docker compose up --build -d
 
 .PHONY: logs
 logs:

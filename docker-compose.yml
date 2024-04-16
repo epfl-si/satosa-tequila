@@ -6,23 +6,22 @@ name: satosa
 
 services:
   satosa:
-    # The SATOSA_IMAGE variable is defined in the .env file:
-    image: ${SATOSA_IMAGE}
-    command:
-      - bash
-      - -x
-      - /custom-entrypoint.sh
+    image: satosa-tequila:latest
+    build: .
     environment:
       - DEBUG_DISABLE_GUNICORN_TIMEOUTS=1
-      - PYTHONPATH=/site-python
       - SATOSA_BASE_URL=https://satosa-127-0-0-1.nip.io
     volumes:
+      # These mounts make it easier to enbug the whole thing, but you
+      # could actually run the container without them:
       - ./custom-entrypoint.sh:/custom-entrypoint.sh:ro
-      - ./config:/config:ro
-      - ./data:/data:ro
-      - ./config/proxy_conf.yaml:/proxy_conf.yaml:ro
-      - ./site-python/epfl:/site-python/epfl:ro
+      - ./config/proxy_conf.yaml:/etc/satosa/proxy_conf.yaml:ro
+      - ./site-python/epfl:/usr/local/lib/python3.12/site-packages/epfl:ro
+      # These ones need to be persistent (also in Kubernetes) or
+      # you're gonna have a bad time (with browser alerts resp. the
+      # OIDC client database):
       - ./tls:/tls:ro
+      - ./data:/data:ro
       # - "/Users/quatrava/Library/Application Support/JetBrains/IntelliJIdea2023.1/plugins/python/debugger-eggs-output/pydevd-pycharm.egg:/pydevd-pycharm.egg:ro"
     ports:
       # We must be visible to browsers at port 443, as these days
