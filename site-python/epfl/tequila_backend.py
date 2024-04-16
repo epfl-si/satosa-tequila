@@ -1,6 +1,7 @@
 from datetime import datetime
 import functools
 import logging
+import os
 import re
 import requests
 import socket
@@ -113,6 +114,10 @@ class _TequilaProtocol(object):
 
     @functools.cached_property
     def tequila_host(self):
+        env_var = "TEQUILA_HOSTNAME"
+        if env_var in os.environ:
+            return os.environ[env_var]
+
         hostparts = ".".split(socket.gethostname())
         hostparts[0] = "tequila"
         if len(hostparts) == 1:
