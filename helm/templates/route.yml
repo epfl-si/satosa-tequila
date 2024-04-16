@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: satosa-tequila
+spec:
+  host: {{ .Values.serve.hostname }}
+  port:
+    targetPort: https
+  to:
+    kind: Service
+    name: satosa-tequila
+  tls:
+    termination: reencrypt
+    externalCertificate:
+      name: satosa-tequila-service-tls
+    insecureEdgeTerminationPolicy: Redirect
