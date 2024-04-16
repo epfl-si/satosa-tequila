@@ -30,7 +30,7 @@ OpenID-Connect (OIDC) bridge as-a-service to Tequila (using the native Tequila p
    -    auth_server: <%= ENV.fetch("OIDC_SERVER_URL") { "http://localhost:8080/realms/rails/" } %>
    +    auth_server: <%= ENV.fetch("OIDC_SERVER_URL") { "https://satosa-127-0-0-1.nip.io/" } %>
    ```
-6. Edit the same file (`config/oidc.yml` in your cloned `rails.starterkit` repository), uncomment the `auth_server_certificate:` section and replace the bogus certificate found there with the contents of the `tls/satosa.crt` file (found below this `README.md` after step 2)
+6. Edit the same file (`config/oidc.yml` in your cloned `rails.starterkit` repository), uncomment the `auth_server_certificate:` section and replace the bogus certificate found there with the contents of the `tls/tls.crt` file (found below this `README.md` after step 2)
 7. Fire up the Rails application with `./bin/dev`
 8. (Optional, but recommended) install the SAML-tracer browser extension ([for Chrome](https://chrome.google.com/webstore/detail/saml-tracer/mpdajninpobndbfcldcmbpnnbhibjmch), [for Firefox](https://addons.mozilla.org/fr/firefox/addon/saml-tracer/))
 9. Browse the Rails application at http://localhost:3000/ and try out the Login button.

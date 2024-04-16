@@ -1,16 +1,16 @@
-KEY_TARGETS := tls/satosa.crt tls/satosa.key
+KEY_TARGETS := tls/tls.crt tls/tls.key
 
 ALL_TARGETS := $(KEY_TARGETS)
 .PHONY: all
 all: $(ALL_TARGETS)
 
-tls/satosa.crt: tls/satosa.key
+tls/tls.crt: tls/tls.key
 	openssl req -x509 -new -key $< \
 	  -batch -subj '/CN=localhost' \
 	  -days 3650 \
 	  -out $@
 
-tls/satosa.key:
+tls/tls.key:
 	@-mkdir tls
 	openssl genrsa 2048 > $@
 
