@@ -58,7 +58,7 @@ spec:
             value: https://{{ .Values.serve.hostname }}{{ .Values.serve.path | default "" }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8080
               protocol: TCP
           livenessProbe:
             httpGet:
