@@ -1,0 +1,15 @@
+{{/*
+Authority to do all the things to TequilaOIDCMapping's
+(to be granted to the ServiceAccount that the satosa-tequila pod runs as;
+see ./clusterrolebinding.yaml)
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+ name: full-access-tequila-oidc-mappings
+rules:
+- apiGroups:
+  - tequila.epfl.ch
+  resources:
+  - tequilaoidcmappings
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
