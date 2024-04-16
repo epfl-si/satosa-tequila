@@ -1,7 +1,6 @@
 # This docker-compose.yml file is intended for development support. It
 # is *not* meant for production.
 
-version: '3'
 name: satosa
 
 services:
