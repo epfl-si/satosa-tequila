@@ -15,7 +15,7 @@ docker_create_config () {
 (cd /tmp; _make_selfsigned frontend)
 
 if test -d /tls; then
-	certopts="--certfile=/tls/satosa.crt --keyfile=/tls/satosa.key"
+	certopts="--certfile=/tls/tls.crt --keyfile=/tls/tls.key"
 	port=8443
 else
 	certopts=""

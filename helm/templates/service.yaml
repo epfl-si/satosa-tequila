@@ -4,12 +4,15 @@ metadata:
   name: {{ include "satosa-tequila.fullname" . }}
   labels:
     {{- include "satosa-tequila.labels" . | nindent 4 }}
+  annotations:
+    # OpenShift can create TLS key pairs as-a-service:
+    service.beta.openshift.io/serving-cert-secret-name: satosa-tequila-service-tls
 spec:
   type: ClusterIP
   ports:
-    - port: 80
-      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
       protocol: TCP
-      name: http
   selector:
     {{- include "satosa-tequila.selectorLabels" . | nindent 4 }}
