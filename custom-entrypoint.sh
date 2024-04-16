@@ -2,13 +2,17 @@
 
 . /usr/local/bin/docker-entrypoint.sh
 
+# Shunted out because we do all the required prep by ourselves:
 unset -f docker_pprint_metadata
-# Shunted out because the original insists on `frontend.xml` being a
-# correct XML file, which it won't because we don't use SAML as
-# front-end.
 docker_pprint_metadata () {
 	:
 }
+unset -f docker_create_config
+docker_create_config () {
+	:
+}
+
+(cd /tmp; _make_selfsigned frontend)
 
 if test -d /tls; then
 	certopts="--certfile=/tls/satosa.crt --keyfile=/tls/satosa.key"
