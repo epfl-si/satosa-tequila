@@ -8,7 +8,7 @@ OpenID-Connect (OIDC) bridge as-a-service to Tequila (SAML), built on top of [SA
 2. **Make sure your port 443 is free** — `service apache stop`, remove any Docker containers that might be occupying it, etc
 3. Clone the repository and start up the development container using the following command:
    ```bash
-   docker compose up
+   make down up logs
    ```
 4. Browse https://satosa-127-0-0-1.nip.io/.well-known/openid-configuration and override the security warning caused by the development rig using a bogus certificate. (💡 You will only have to do this once per browser, until you `make clean`)
 5. We suggest https://github.com/epfl-si/rails.starterkit as the demo OpenID-Connect application. Clone it somewhere else and apply the following diff to it:

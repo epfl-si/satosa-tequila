@@ -20,6 +20,10 @@ tls/satosa.key:
 up: all
 	docker compose up -d
 
+.PHONY: logs
+logs:
+	docker compose logs -f
+
 .PHONY: down
 down:
 	docker compose down
