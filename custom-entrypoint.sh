@@ -53,4 +53,4 @@ else
 	certopts=""
 	port=8080
 fi
-_main gunicorn ${DEBUG_DISABLE_GUNICORN_TIMEOUTS:+--timeout 0} $certopts -b0.0.0.0:$port epfl.satosa_wsgi:app
+_main gunicorn ${DEBUG_DISABLE_GUNICORN_TIMEOUTS:+--timeout 0} --threads 10 $certopts -b0.0.0.0:$port epfl.satosa_wsgi:app
