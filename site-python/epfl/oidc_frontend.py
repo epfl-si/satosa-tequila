@@ -23,15 +23,18 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
             self.provider.clients = clients_db
 
     def _init_clients_db (self):
+        def wrap_into_a_dict(something_that_implements_get_all):
+            return _ClientDatabaseDictish(something_that_implements_get_all)
+
         db_type = self.config.get("client_db", {}).get("type")
         if db_type.lower() == "json":
             json_path = self.config["client_db"]["path"]
-            return _CachingDictish(_JSONDB(json_path))
+            return wrap_into_a_dict(_JSONDB(json_path))
         elif db_type.lower() == "kubernetes":
             def provider_is_us (provider_url):
                 return self.base_url.rstrip("/") == provider_url.rstrip("/")
 
-            return _CachingDictish(_KubernetesDB(provider_is_us))
+            return wrap_into_a_dict(_KubernetesDB(provider_is_us))
 
     def _get_extra_id_token_claims(self, user_id, client_id):
         """Overloaded to support loading the extra token claims from the client database."""
@@ -64,10 +67,10 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
         return super()._handle_authn_request(context)
 
 
-class _CachingDictish(object):
+class _ClientDatabaseDictish(object):
     """Minimalist implementation of a dict, that caches all lookups for a few seconds."""
-    def __init__(self, getter, timeout_seconds=2):
-        self.getter = getter
+    def __init__(self, getter_all, timeout_seconds=2):
+        self.getter_all = getter_all
         self.last_time_read = None
         self.timeout_seconds = timeout_seconds
         self.cached_data = None
@@ -77,7 +80,7 @@ class _CachingDictish(object):
         if self.last_time_read and self.last_time_read + self.timeout_seconds > now:
             return self.cached_data
         else:
-            self.cached_data = self.getter.get_all()
+            self.cached_data = self.getter_all.get_all()
             self.last_time_read = now
             return self.cached_data
 
@@ -92,7 +95,7 @@ class _CachingDictish(object):
 
 
 class _JSONDB(object):
-    """A getter for `CachingDictish` that reads out of a JSON file."""
+    """A getter_all for `_ClientDatabaseDictish` that reads out of a JSON file."""
     def __init__(self, json_file):
         self.json_file = json_file
 
@@ -106,7 +109,7 @@ class _JSONDB(object):
 
 
 class _KubernetesDB(object):
-    """A getter for `CachingDictish` that reads `TequilaOIDCMapping`s."""
+    """A getter_all for `_ClientDatabaseDictish` that reads `TequilaOIDCMapping`s."""
     CR_GROUP = "tequila.epfl.ch"
     CR_VERSION = "v1"
     CR_NAME = "TequilaOIDCMapping"
