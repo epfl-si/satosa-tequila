@@ -99,11 +99,20 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
             requires = self.provider.clients[client_id].get("tequila_requires",
                                                             [])
             if requires:
-                require_stanza = "&".join("(%s)" % r for r in requires)
+                require_stanza = "&".join("(%s)" % self._as_tequila_clause(r) for r in requires)
                 logger.info("tequila_require %s" % require_stanza)
                 context.tequila_require = require_stanza
 
         return super()._handle_authn_request(context)
+
+    def _as_tequila_clause(self, require_json_struct):
+        if isinstance(require_json_struct, str):
+            return require_json_struct
+        elif isinstance(require_json_struct, dict):
+            if 'group' in require_json_struct:
+                return 'group=%s' % require_json_struct["group"]
+
+        raise ValueError("Unable to interpret `tequila_requires` clause: %s" % require_json_struct)
 
 
 class _ClientDatabaseDictish(object):
