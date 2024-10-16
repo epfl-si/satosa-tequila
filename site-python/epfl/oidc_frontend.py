@@ -10,24 +10,28 @@ logger = logging.getLogger(__name__)
 
 class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
     def __init__(self, auth_req_callback_func, internal_attributes, conf, base_url, name):
-        """Overloaded to implement continuous reload of the JSON database."""
+        """Overloaded so as to implement EPFL-specific enhancements.
+
+          - continuous reload of the JSON database
+          - Kubernetes database (backed by the `TequilaOIDCMapping` CRD) 
+      """
         super().__init__(auth_req_callback_func, internal_attributes, conf, base_url, name)
 
+        clients_db = self._init_clients_db ()
+        if clients_db:
+            logger.info("Will be loading OIDC client database from %s" % repr(clients_db))
+            self.provider.clients = clients_db
+
+    def _init_clients_db (self):
         db_type = self.config.get("client_db", {}).get("type")
         if db_type.lower() == "json":
             json_path = self.config["client_db"]["path"]
-            db = _JSONDB(json_path)
+            return _CachingDictish(_JSONDB(json_path))
         elif db_type.lower() == "kubernetes":
             def provider_is_us (provider_url):
                 return self.base_url.rstrip("/") == provider_url.rstrip("/")
 
-            db = _KubernetesDB(provider_is_us)
-        else:
-            db = None
-
-        if db:
-            logger.info("Will be loading OIDC client database from %s" % repr(db))
-            self.provider.clients = _CachingDictish(db)
+            return _CachingDictish(_KubernetesDB(provider_is_us))
 
     def _get_extra_id_token_claims(self, user_id, client_id):
         """Overloaded to support loading the extra token claims from the client database."""
