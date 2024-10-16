@@ -33,5 +33,7 @@ services:
       # other port (and while you could deal with the former using the
       # Redirector browser plug-in, the latter is more tricky.)
       - "127.0.0.1:443:8443"
+      # Uncomment for debugpy:
+      - "127.0.0.1:5678:5678"
 volumes:
   mariadb: {}
