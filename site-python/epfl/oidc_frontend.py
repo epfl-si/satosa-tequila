@@ -2,8 +2,10 @@ import json
 import logging
 import time
 import kubernetes
-from satosa.frontends.openid_connect import OpenIDConnectFrontend as SATOSAOpenIDConnectFrontend
+from urllib.parse import urlparse
 
+from pyop.exceptions import InvalidRedirectURI
+from satosa.frontends.openid_connect import OpenIDConnectFrontend as SATOSAOpenIDConnectFrontend
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
 
           - continuous reload of the JSON database
           - Kubernetes database (backed by the `TequilaOIDCMapping` CRD) 
+          - wildcard matching of redirect URIs
       """
         super().__init__(auth_req_callback_func, internal_attributes, conf, base_url, name)
 
@@ -21,6 +24,8 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
         if clients_db:
             logger.info("Will be loading OIDC client database from %s" % repr(clients_db))
             self.provider.clients = clients_db
+
+        self.provider.authentication_request_validators = self._init_provider_validators(self.provider)
 
     def _init_clients_db (self):
         def wrap_into_a_dict(something_that_implements_get_all):
@@ -35,6 +40,40 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
                 return self.base_url.rstrip("/") == provider_url.rstrip("/")
 
             return wrap_into_a_dict(_KubernetesDB(provider_is_us))
+
+    def _init_provider_validators(self, provider):
+        def ensure_valid_redirect_uri (authentication_request):
+            try:
+                allowed_redirect_uris = provider.clients[authentication_request['client_id']]['redirect_uris']
+            except KeyError as e:
+                logger.error('client metadata is missing redirect_uris')
+                raise InvalidRedirectURI(
+                    'No redirect uri registered for this client',
+                    authentication_request,
+                    oauth_error="invalid_request")
+
+            redirect_uri = authentication_request['redirect_uri']
+            if redirect_uri in allowed_redirect_uris:
+                return   # OK
+            elif self._as_wildcard_url(redirect_uri) in allowed_redirect_uris:
+                return   # OK
+            else:
+                logger.error("Redirect uri \'{0}\' is not registered for this client".format(authentication_request['redirect_uri']))
+                raise InvalidRedirectURI(
+                    'Redirect uri is not registered for this client',
+                    authentication_request,
+                    oauth_error="invalid_request")
+
+        return [ v for v in provider.authentication_request_validators
+                 if not (hasattr(v, 'func')
+                         and 'redirect_uri_is_in_registered_redirect_uris' in v.func.__name__)
+                ] + [ ensure_valid_redirect_uri ]
+
+    def _as_wildcard_url (self, url):
+        # No, _replace() is not a private API — just (yet another)
+        # example of sloppy design in the Python standard library.
+        # https://docs.python.org/3/library/urllib.parse.html#structured-parse-results
+        return urlparse(url)._replace(path='*').geturl()
 
     def _get_extra_id_token_claims(self, user_id, client_id):
         """Overloaded to support loading the extra token claims from the client database."""
