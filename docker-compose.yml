@@ -27,6 +27,8 @@ services:
       # Kubernetes will take care of this one for you:
       - ./k8s-credentials:/var/run/secrets/kubernetes.io/serviceaccount:ro
       # - "/Users/quatrava/Library/Application Support/JetBrains/IntelliJIdea2023.1/plugins/python/debugger-eggs-output/pydevd-pycharm.egg:/pydevd-pycharm.egg:ro"
+      - ./data:/data:ro
+      - ./config:/config:ro
     ports:
       # We must be visible to browsers at port 443, as these days
       # Tequila doesn't belive in redirecting, nor POSTing, to any
