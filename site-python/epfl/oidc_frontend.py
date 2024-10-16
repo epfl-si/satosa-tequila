@@ -73,7 +73,7 @@ class OpenIDConnectFrontend(SATOSAOpenIDConnectFrontend):
         # No, _replace() is not a private API — just (yet another)
         # example of sloppy design in the Python standard library.
         # https://docs.python.org/3/library/urllib.parse.html#structured-parse-results
-        return urlparse(url)._replace(path='*').geturl()
+        return urlparse(url)._replace(path='*', query=None).geturl()
 
     def _get_extra_id_token_claims(self, user_id, client_id):
         """Overloaded to support loading the extra token claims from the client database."""
